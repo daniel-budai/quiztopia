@@ -1,0 +1,109 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: danielbudai
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: quiztopia
+
+stages:
+  default:
+    params:
+      accountsTable: "accounts-table-${sls:stage}"
+      quizzesTable: "quizzes-table-${sls:stage}"
+      questionsTable: "questions-table-${sls:stage}"
+      leaderboardTable: "leaderboards-table-${sls:stage}"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: eu-north-1
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - Fn::GetAtt: [AccountsTable, Arn]
+            - Fn::GetAtt: [QuizzesTable, Arn]
+            - Fn::GetAtt: [QuestionsTable, Arn]
+            - Fn::GetAtt: [LeaderboardTable, Arn]
+  environment:
+    ACCOUNTS_TABLE: ${param:accountsTable}
+    QUIZZES_TABLE: ${param:quizzesTable}
+    QUESTIONS_TABLE: ${param:questionsTable}
+    LEADERBOARD_TABLE: ${param:leaderboardTable}
+
+functions:
+  api:
+    handler: handler.handler
+    events:
+      - httpApi: "*"
+
+resources:
+  Resources:
+    AccountsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${param:accountsTable}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+
+    QuizzesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: quizId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: quizId
+            KeyType: HASH
+          - AttributeName: userId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${param:quizzesTable}
+
+    QuestionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: questionId
+            AttributeType: S
+          - AttributeName: quizId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: questionId
+            KeyType: HASH
+          - AttributeName: quizId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${param:questionsTable}
+
+    LeaderboardTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: quizId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: quizId
+            KeyType: HASH
+          - AttributeName: userId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${param:leaderboardTable}
