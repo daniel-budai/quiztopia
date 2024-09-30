@@ -37,8 +37,23 @@ provider:
     QUIZZES_TABLE: ${param:quizzesTable}
     QUESTIONS_TABLE: ${param:questionsTable}
     LEADERBOARD_TABLE: ${param:leaderboardTable}
+    JWT_SECRET: "din_hemliga_nyckel"
 
 functions:
+  signup:
+    handler: src/functions/User/signup/signup.handler
+    events:
+      - httpApi:
+          path: /signup
+          method: post
+
+  login:
+    handler: src/functions/User/login/login.handler
+    events:
+      - httpApi:
+          path: /login
+          method: post
+
   api:
     handler: handler.handler
     events:
@@ -51,14 +66,21 @@ resources:
       Properties:
         TableName: ${param:accountsTable}
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: accountId
+            AttributeType: S
+          - AttributeName: username
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: accountId
             KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+        GlobalSecondaryIndexes:
+          - IndexName: UsernameIndex
+            KeySchema:
+              - AttributeName: username
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
 
     QuizzesTable:
       Type: AWS::DynamoDB::Table
@@ -66,12 +88,12 @@ resources:
         AttributeDefinitions:
           - AttributeName: quizId
             AttributeType: S
-          - AttributeName: userId
+          - AttributeName: accountId
             AttributeType: S
         KeySchema:
           - AttributeName: quizId
             KeyType: HASH
-          - AttributeName: userId
+          - AttributeName: accountId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${param:quizzesTable}
@@ -98,12 +120,12 @@ resources:
         AttributeDefinitions:
           - AttributeName: quizId
             AttributeType: S
-          - AttributeName: userId
+          - AttributeName: accountId
             AttributeType: S
         KeySchema:
           - AttributeName: quizId
             KeyType: HASH
-          - AttributeName: userId
+          - AttributeName: accountId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${param:leaderboardTable}

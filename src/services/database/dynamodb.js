@@ -5,6 +5,4 @@ const client = new DynamoDB({
   region: process.env.AWS_REGION,
 });
 
-const db = DynamoDBDocument.from(client);
-
-export default { db };
+export const db = DynamoDBDocument.from(client);
