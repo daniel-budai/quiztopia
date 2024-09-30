@@ -1,6 +1,6 @@
 import middy from "@middy/core";
 import createError from "http-errors";
-import { verifyToken } from "../utils/jwt/jwtUtils";
+import { verifyToken } from "../../utils/jwt/tokenUtils.js";
 
 const authMiddleware = () => {
   return {

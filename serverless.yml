@@ -59,6 +59,27 @@ functions:
     events:
       - httpApi: "*"
 
+  createQuiz:
+    handler: src/functions/Quiz/Create/createQuiz.handler
+    events:
+      - httpApi:
+          path: /quizzes
+          method: post
+
+  addQuestion:
+    handler: src/functions/Quiz/Questions/addQuestion.handler
+    events:
+      - httpApi:
+          path: /quizzes/{quizId}/questions
+          method: post
+
+  getAllQuizzes:
+    handler: src/functions/Quiz/Retrive/getAllQuizzes.handler
+    events:
+      - httpApi:
+          path: /quizzes
+          method: get
+
 resources:
   Resources:
     AccountsTable:
