@@ -5,6 +5,10 @@ import jsonBodyParser from "@middy/http-json-body-parser";
 import httpErrorHandler from "@middy/http-error-handler";
 import authMiddleware from "../../../middlewares/auth/authMiddleware.js";
 import { v4 as uuidv4 } from "uuid";
+import {
+  sendResponse,
+  sendError,
+} from "../../../utils/responses/responseHandlers.js";
 
 const addQuestion = async (event) => {
   const { quizId } = event.pathParameters;
@@ -29,18 +33,14 @@ const addQuestion = async (event) => {
 
   try {
     await db.put(params);
-  } catch (error) {
-    console.error("Error adding question:", error);
-    throw new createError.InternalServerError("Could not add question");
-  }
-
-  return {
-    statusCode: 201,
-    body: JSON.stringify({
+    return sendResponse(201, {
       message: "Question added successfully",
       questionId,
-    }),
-  };
+    });
+  } catch (error) {
+    console.error("Error adding question:", error);
+    return sendError(500, { error: "Could not add question" });
+  }
 };
 
 export const handler = middy(addQuestion)

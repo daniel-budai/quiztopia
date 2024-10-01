@@ -4,15 +4,16 @@ import { v4 as uuidv4 } from "uuid";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
 import httpErrorHandler from "@middy/http-error-handler";
+import {
+  sendResponse,
+  sendError,
+} from "../../../utils/responses/responseHandlers.js";
 
 const signup = async (event) => {
   const { username, password } = event.body;
 
   if (!username || !password) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: "Username and password are required" }),
-    };
+    return sendError(400, { error: "Username and password are required" });
   }
 
   try {
@@ -30,16 +31,10 @@ const signup = async (event) => {
 
     await db.put(params);
 
-    return {
-      statusCode: 201,
-      body: JSON.stringify({ message: "Account created successfully" }),
-    };
+    return sendResponse(201, { message: "Account created successfully" });
   } catch (error) {
     console.error("Error creating account:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Could not create account" }),
-    };
+    return sendError(500, { error: "Could not create account" });
   }
 };
 

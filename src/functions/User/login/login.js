@@ -4,15 +4,16 @@ import { generateToken } from "../../../utils/jwt/tokenUtils.js";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
 import httpErrorHandler from "@middy/http-error-handler";
+import {
+  sendResponse,
+  sendError,
+} from "../../../utils/responses/responseHandlers.js";
 
 const login = async (event) => {
   const { username, password } = event.body;
 
   if (!username || !password) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: "Username and password are required" }),
-    };
+    return sendError(400, { error: "Username and password are required" });
   }
 
   try {
@@ -29,33 +30,21 @@ const login = async (event) => {
     const account = result.Items[0];
 
     if (!account) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ error: "Invalid username or password" }),
-      };
+      return sendError(401, { error: "Invalid username or password" });
     }
 
     const isPasswordValid = await comparePassword(password, account.password);
 
     if (!isPasswordValid) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ error: "Invalid username or password" }),
-      };
+      return sendError(401, { error: "Invalid username or password" });
     }
 
     const token = generateToken(account.accountId);
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: "Login successful", token }),
-    };
+    return sendResponse(200, { message: "Login successful", token });
   } catch (error) {
     console.error("Error logging in account:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Could not log in account" }),
-    };
+    return sendError(500, { error: "Could not log in account" });
   }
 };
 

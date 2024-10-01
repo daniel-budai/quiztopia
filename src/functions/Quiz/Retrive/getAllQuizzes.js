@@ -2,6 +2,10 @@ import { db } from "../../../services/database/dynamodb.js";
 import createError from "http-errors";
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
+import {
+  sendResponse,
+  sendError,
+} from "../../../utils/responses/responseHandlers.js";
 
 const getAllQuizzes = async (event) => {
   const quizParams = {
@@ -34,13 +38,10 @@ const getAllQuizzes = async (event) => {
       };
     });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(quizzesWithUsernames),
-    };
+    return sendResponse(200, quizzesWithUsernames);
   } catch (error) {
     console.error("Error retrieving quizzes:", error);
-    throw new createError.InternalServerError("Could not retrieve quizzes");
+    return sendError(500, { error: "Could not retrieve quizzes" });
   }
 };
 

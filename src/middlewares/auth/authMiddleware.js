@@ -1,7 +1,7 @@
 import middy from "@middy/core";
-import createError from "http-errors";
 import { verifyToken } from "../../utils/jwt/tokenUtils.js";
 import { db } from "../../services/database/dynamodb.js";
+import { sendError } from "../../utils/responses/responseHandlers.js";
 
 const authMiddleware = () => {
   return {
@@ -10,7 +10,7 @@ const authMiddleware = () => {
       const authToken = headers.Authorization || headers.authorization;
 
       if (!authToken) {
-        throw new createError.Unauthorized("Unauthorized");
+        return sendError(401, { error: "Unauthorized" });
       }
 
       try {
@@ -24,7 +24,7 @@ const authMiddleware = () => {
         const result = await db.get(params);
 
         if (!result.Item) {
-          throw new createError.Unauthorized("User not found");
+          return sendError(401, { error: "User not found" });
         }
 
         handler.event.user = {
@@ -33,7 +33,7 @@ const authMiddleware = () => {
         };
       } catch (error) {
         console.error("Token verification failed:", error.message);
-        throw new createError.Unauthorized("Unauthorized");
+        return sendError(401, { error: "Unauthorized" });
       }
     },
   };
