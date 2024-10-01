@@ -87,6 +87,13 @@ functions:
           path: /quizzes/{quizId}
           method: delete
 
+  getQuestionsByQuizId:
+    handler: src/functions/Quiz/Questions/getQuestionsByQuizId.handler
+    events:
+      - httpApi:
+          path: /quizzes/{quizId}/questions
+          method: get
+
 resources:
   Resources:
     AccountsTable:
@@ -139,6 +146,13 @@ resources:
             KeyType: HASH
           - AttributeName: quizId
             KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: QuizIdIndex
+            KeySchema:
+              - AttributeName: quizId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
         TableName: ${param:questionsTable}
 

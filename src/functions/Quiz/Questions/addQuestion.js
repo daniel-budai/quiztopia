@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 const addQuestion = async (event) => {
   const { quizId } = event.pathParameters;
   const { question, answer, latitude, longitude } = event.body;
+  const { accountId, username } = event.user;
   const questionId = uuidv4();
 
   const params = {
@@ -16,10 +17,13 @@ const addQuestion = async (event) => {
     Item: {
       questionId,
       quizId,
+      accountId,
+      username,
       question,
       answer,
       latitude,
       longitude,
+      createdAt: new Date().toISOString(),
     },
   };
 
