@@ -80,6 +80,13 @@ functions:
           path: /quizzes
           method: get
 
+  deleteQuiz:
+    handler: src/functions/Quiz/Delete/deleteQuiz.handler
+    events:
+      - httpApi:
+          path: /quizzes/{quizId}
+          method: delete
+
 resources:
   Resources:
     AccountsTable:
