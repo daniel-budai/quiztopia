@@ -54,11 +54,6 @@ functions:
           path: /login
           method: post
 
-  api:
-    handler: handler.handler
-    events:
-      - httpApi: "*"
-
   createQuiz:
     handler: src/functions/Quiz/Create/createQuiz.handler
     events:
@@ -93,6 +88,20 @@ functions:
       - httpApi:
           path: /quizzes/{quizId}/questions
           method: get
+
+  getLeaderboard:
+    handler: src/functions/Quiz/Leaderboard/Get/getLeaderboard.handler
+    events:
+      - httpApi:
+          path: /quizzes/{quizId}/leaderboard
+          method: get
+
+  addScoreToLeaderboard:
+    handler: src/functions/Quiz/Leaderboard/Add/addScoreToLeaderboard.handler
+    events:
+      - httpApi:
+          path: /quizzes/{quizId}/play
+          method: post
 
 resources:
   Resources:
@@ -164,10 +173,21 @@ resources:
             AttributeType: S
           - AttributeName: accountId
             AttributeType: S
+          - AttributeName: score
+            AttributeType: N
         KeySchema:
           - AttributeName: quizId
             KeyType: HASH
           - AttributeName: accountId
             KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: QuizScoreIndex
+            KeySchema:
+              - AttributeName: quizId
+                KeyType: HASH
+              - AttributeName: score
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
         TableName: ${param:leaderboardTable}

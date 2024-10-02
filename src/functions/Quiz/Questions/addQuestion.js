@@ -11,6 +11,10 @@ import {
 } from "../../../utils/responses/responseHandlers.js";
 
 const addQuestion = async (event) => {
+  if (!event.pathParameters || !event.pathParameters.quizId) {
+    return sendError(400, { error: "Quiz ID is required" });
+  }
+
   const { quizId } = event.pathParameters;
   const { question, answer, latitude, longitude } = event.body;
   const { accountId, username } = event.user;

@@ -8,16 +8,23 @@ import {
 } from "../../../utils/responses/responseHandlers.js";
 
 const getQuestionsByQuizId = async (event) => {
+  const { quizId } = event.pathParameters;
   const params = {
     TableName: process.env.QUESTIONS_TABLE,
+    IndexName: "QuizIdIndex",
+    KeyConditionExpression: "quizId = :quizId",
+    ExpressionAttributeValues: {
+      ":quizId": quizId,
+    },
   };
 
   try {
-    const result = await db.scan(params);
+    const result = await db.query(params);
     const questions = result.Items;
 
     return sendResponse(200, questions);
   } catch (error) {
+    console.error("Error retrieving questions:", error);
     return sendError(500, { error: "Could not retrieve questions" });
   }
 };
