@@ -3,7 +3,8 @@ import { hashPassword } from "../../../utils/bcrypt/bcryptUtils.js";
 import { v4 as uuidv4 } from "uuid";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
-import httpErrorHandler from "@middy/http-error-handler";
+import { inputValidator } from "../../../middlewares/validation/inputValidator.js";
+import { signupSchema } from "../../../schemas/User/signupSchema.js";
 import {
   sendResponse,
   sendError,
@@ -11,10 +12,6 @@ import {
 
 const signup = async (event) => {
   const { username, password } = event.body;
-
-  if (!username || !password) {
-    return sendError(400, { error: "Username and password are required" });
-  }
 
   try {
     const hashedPassword = await hashPassword(password);
@@ -40,4 +37,4 @@ const signup = async (event) => {
 
 export const handler = middy(signup)
   .use(jsonBodyParser())
-  .use(httpErrorHandler());
+  .use(inputValidator(signupSchema));

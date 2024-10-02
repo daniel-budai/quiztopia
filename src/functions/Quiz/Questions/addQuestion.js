@@ -1,8 +1,8 @@
 import { db } from "../../../services/database/dynamodb.js";
-import createError from "http-errors";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
-import httpErrorHandler from "@middy/http-error-handler";
+import { inputValidator } from "../../../middlewares/validation/inputValidator.js";
+import { addQuestionSchema } from "../../../schemas/Quiz/addQuestionSchema.js";
 import authMiddleware from "../../../middlewares/auth/authMiddleware.js";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -11,10 +11,6 @@ import {
 } from "../../../utils/responses/responseHandlers.js";
 
 const addQuestion = async (event) => {
-  if (!event.pathParameters || !event.pathParameters.quizId) {
-    return sendError(400, { error: "Quiz ID is required" });
-  }
-
   const { quizId } = event.pathParameters;
   const { question, answer, latitude, longitude } = event.body;
   const { accountId, username } = event.user;
@@ -49,5 +45,5 @@ const addQuestion = async (event) => {
 
 export const handler = middy(addQuestion)
   .use(jsonBodyParser())
-  .use(httpErrorHandler())
-  .use(authMiddleware());
+  .use(authMiddleware())
+  .use(inputValidator(addQuestionSchema));

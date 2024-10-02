@@ -7,6 +7,8 @@ import {
   sendResponse,
   sendError,
 } from "../../../../utils/responses/responseHandlers.js";
+import { inputValidator } from "../../../../middlewares/validation/inputValidator.js";
+import { addScoreSchema } from "../../../../schemas/Quiz/addScoreSchema.js";
 
 const addScoreToLeaderboard = async (event) => {
   const { quizId } = event.pathParameters;
@@ -80,4 +82,5 @@ const addScoreToLeaderboard = async (event) => {
 export const handler = middy(addScoreToLeaderboard)
   .use(jsonBodyParser())
   .use(httpErrorHandler())
-  .use(authMiddleware());
+  .use(authMiddleware())
+  .use(inputValidator(addScoreSchema));

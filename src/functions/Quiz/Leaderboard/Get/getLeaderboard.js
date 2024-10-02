@@ -17,8 +17,7 @@ const getQuizLeaderboard = async (event) => {
       ":quizId": quizId,
     },
     ProjectionExpression: "username, score",
-    ScanIndexForward: false, // This will sort in descending order (highest score first)
-    Limit: 10, // Get top 10 scores
+    ScanIndexForward: false,
   };
 
   try {

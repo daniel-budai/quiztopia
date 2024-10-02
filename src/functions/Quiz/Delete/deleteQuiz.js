@@ -1,6 +1,7 @@
 import { db } from "../../../services/database/dynamodb.js";
 import middy from "@middy/core";
-import httpErrorHandler from "@middy/http-error-handler";
+import { inputValidator } from "../../../middlewares/validation/inputValidator.js";
+import { deleteQuizSchema } from "../../../schemas/Quiz/deleteQuizSchema.js";
 import authMiddleware from "../../../middlewares/auth/authMiddleware.js";
 import {
   sendResponse,
@@ -38,13 +39,37 @@ const deleteQuiz = async (event) => {
 
     await db.delete(deleteParams);
 
-    return sendResponse(200, { message: "Quiz deleted successfully" });
+    const queryParams = {
+      TableName: process.env.QUESTIONS_TABLE,
+      IndexName: "QuizIdIndex",
+      KeyConditionExpression: "quizId = :quizId",
+      ExpressionAttributeValues: {
+        ":quizId": quizId,
+      },
+    };
+
+    const questions = await db.query(queryParams);
+
+    const deletePromises = questions.Items.map((question) =>
+      db.delete({
+        TableName: process.env.QUESTIONS_TABLE,
+        Key: { questionId: question.questionId, quizId: question.quizId },
+      })
+    );
+
+    await Promise.all(deletePromises);
+
+    return sendResponse(200, {
+      message: "Quiz and associated questions deleted successfully",
+    });
   } catch (error) {
     console.error("Error deleting quiz:", error);
-    return sendError(500, { error: "Could not delete quiz" });
+    return sendError(500, {
+      error: "Could not delete quiz",
+    });
   }
 };
 
 export const handler = middy(deleteQuiz)
-  .use(httpErrorHandler())
-  .use(authMiddleware());
+  .use(authMiddleware())
+  .use(inputValidator(deleteQuizSchema));

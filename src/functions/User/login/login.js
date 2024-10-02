@@ -3,7 +3,8 @@ import { comparePassword } from "../../../utils/bcrypt/bcryptUtils.js";
 import { generateToken } from "../../../utils/jwt/tokenUtils.js";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
-import httpErrorHandler from "@middy/http-error-handler";
+import { inputValidator } from "../../../middlewares/validation/inputValidator.js";
+import { loginSchema } from "../../../schemas/User/loginSchema.js";
 import {
   sendResponse,
   sendError,
@@ -11,10 +12,6 @@ import {
 
 const login = async (event) => {
   const { username, password } = event.body;
-
-  if (!username || !password) {
-    return sendError(400, { error: "Username and password are required" });
-  }
 
   try {
     const params = {
@@ -30,13 +27,13 @@ const login = async (event) => {
     const account = result.Items[0];
 
     if (!account) {
-      return sendError(401, { error: "Invalid username or password" });
+      return sendError(401, { error: "No user with that username found" });
     }
 
     const isPasswordValid = await comparePassword(password, account.password);
 
     if (!isPasswordValid) {
-      return sendError(401, { error: "Invalid username or password" });
+      return sendError(401, { error: "Invalid password" });
     }
 
     const token = generateToken(account.accountId);
@@ -50,4 +47,4 @@ const login = async (event) => {
 
 export const handler = middy(login)
   .use(jsonBodyParser())
-  .use(httpErrorHandler());
+  .use(inputValidator(loginSchema));

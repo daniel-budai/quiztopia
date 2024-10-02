@@ -2,7 +2,8 @@ import { db } from "../../../services/database/dynamodb.js";
 import { v4 as uuidv4 } from "uuid";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
-import httpErrorHandler from "@middy/http-error-handler";
+import { inputValidator } from "../../../middlewares/validation/inputValidator.js";
+import { createQuizSchema } from "../../../schemas/Quiz/createQuizSchema.js";
 import authMiddleware from "../../../middlewares/auth/authMiddleware.js";
 import {
   sendResponse,
@@ -11,11 +12,7 @@ import {
 
 const createQuiz = async (event) => {
   const { title } = event.body;
-  const accountId = event.user.accountId;
-
-  if (!title || !accountId) {
-    return sendError(400, { error: "Title and account ID are required" });
-  }
+  const { accountId } = event.user;
 
   const quizId = uuidv4();
   const params = {
@@ -39,5 +36,5 @@ const createQuiz = async (event) => {
 
 export const handler = middy(createQuiz)
   .use(jsonBodyParser())
-  .use(httpErrorHandler())
-  .use(authMiddleware());
+  .use(authMiddleware())
+  .use(inputValidator(createQuizSchema));
