@@ -1,49 +1,38 @@
-import { db } from "../../../services/database/dynamodb.js";
+import { addQuestion } from "../../../helpers/Questions/addQuestionsHelper.js";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
 import { inputValidator } from "../../../middlewares/validation/inputValidator.js";
 import { addQuestionSchema } from "../../../schemas/Quiz/addQuestionSchema.js";
 import authMiddleware from "../../../middlewares/auth/authMiddleware.js";
-import { v4 as uuidv4 } from "uuid";
 import {
   sendResponse,
   sendError,
 } from "../../../utils/responses/responseHandlers.js";
 
-const addQuestion = async (event) => {
+const addQuestionHandler = async (event) => {
   const { quizId } = event.pathParameters;
-  const { question, answer, latitude, longitude } = event.body;
-  const { accountId, username } = event.user;
-  const questionId = uuidv4();
-
-  const params = {
-    TableName: process.env.QUESTIONS_TABLE,
-    Item: {
-      questionId,
-      quizId,
-      accountId,
-      username,
-      question,
-      answer,
-      latitude,
-      longitude,
-      createdAt: new Date().toISOString(),
-    },
-  };
+  const { accountId } = event.user;
+  const questionData = event.body;
 
   try {
-    await db.put(params);
+    const questionId = await addQuestion(quizId, questionData, accountId);
     return sendResponse(201, {
       message: "Question added successfully",
       questionId,
     });
   } catch (error) {
-    console.error("Error adding question:", error);
+    console.error("Error in addQuestionHandler:", error);
+    if (
+      error.message ===
+      "Quiz not found or you don't have permission to add questions to it"
+    ) {
+      return sendError(404, { error: error.message });
+    }
     return sendError(500, { error: "Could not add question" });
   }
 };
 
-export const handler = middy(addQuestion)
+export const handler = middy(addQuestionHandler)
   .use(jsonBodyParser())
   .use(authMiddleware())
   .use(inputValidator(addQuestionSchema));

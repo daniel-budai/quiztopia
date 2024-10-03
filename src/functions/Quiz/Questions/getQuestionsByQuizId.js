@@ -1,4 +1,4 @@
-import { db } from "../../../services/database/dynamodb.js";
+import { getQuestionsByQuizId } from "../../../helpers/Questions/getQuestionsByQuizIdHelper.js";
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
 import authMiddleware from "../../../middlewares/auth/authMiddleware.js";
@@ -7,28 +7,18 @@ import {
   sendError,
 } from "../../../utils/responses/responseHandlers.js";
 
-const getQuestionsByQuizId = async (event) => {
+const getQuestionsByQuizIdHandler = async (event) => {
   const { quizId } = event.pathParameters;
-  const params = {
-    TableName: process.env.QUESTIONS_TABLE,
-    IndexName: "QuizIdIndex",
-    KeyConditionExpression: "quizId = :quizId",
-    ExpressionAttributeValues: {
-      ":quizId": quizId,
-    },
-  };
 
   try {
-    const result = await db.query(params);
-    const questions = result.Items;
-
+    const questions = await getQuestionsByQuizId(quizId);
     return sendResponse(200, questions);
   } catch (error) {
-    console.error("Error retrieving questions:", error);
+    console.error("Error in getQuestionsByQuizIdHandler:", error);
     return sendError(500, { error: "Could not retrieve questions" });
   }
 };
 
-export const handler = middy(getQuestionsByQuizId)
+export const handler = middy(getQuestionsByQuizIdHandler)
   .use(httpErrorHandler())
   .use(authMiddleware());

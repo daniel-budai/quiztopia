@@ -10,8 +10,6 @@
     "@middy/http-error-handler": "^5.5.0",
     "@middy/http-json-body-parser": "^5.5.0",
     "@middy/validator": "^5.5.0",
-    "ajv": "^8.17.1",
-    "ajv-errors": "^3.0.0",
     "bcryptjs": "^2.4.3",
     "express": "^4.19.2",
     "joi": "^17.13.3",

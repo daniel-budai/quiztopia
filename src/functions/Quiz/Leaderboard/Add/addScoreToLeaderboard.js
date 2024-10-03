@@ -1,4 +1,4 @@
-import { db } from "../../../../services/database/dynamodb.js";
+import { addScoreToLeaderboard } from "../../../../helpers/Leaderboard/addScoreToLeaderboardHelper.js";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
 import httpErrorHandler from "@middy/http-error-handler";
@@ -10,7 +10,7 @@ import {
 import { inputValidator } from "../../../../middlewares/validation/inputValidator.js";
 import { addScoreSchema } from "../../../../schemas/Quiz/addScoreSchema.js";
 
-const addScoreToLeaderboard = async (event) => {
+const addScoreToLeaderboardHandler = async (event) => {
   const { quizId } = event.pathParameters;
   const { answers } = event.body;
   const { accountId, username } = event.user;
@@ -22,64 +22,29 @@ const addScoreToLeaderboard = async (event) => {
   }
 
   try {
-    // Fetch questions for the quiz
-    const questionsParams = {
-      TableName: process.env.QUESTIONS_TABLE,
-      IndexName: "QuizIdIndex",
-      KeyConditionExpression: "quizId = :quizId",
-      ExpressionAttributeValues: {
-        ":quizId": quizId,
-      },
-    };
-
-    const questionsResult = await db.query(questionsParams);
-    const questions = questionsResult.Items;
-
-    if (answers.length !== questions.length) {
-      return sendError(400, {
-        error: `Incorrect number of answers. Expected ${questions.length}, but got ${answers.length}.`,
-      });
-    }
-
-    // Calculate score
-    let score = 0;
-    questions.forEach((question, index) => {
-      const userAnswer = answers[index];
-      if (
-        question.answer.toLowerCase() === userAnswer.answer.toLowerCase() &&
-        parseFloat(question.latitude) === parseFloat(userAnswer.latitude) &&
-        parseFloat(question.longitude) === parseFloat(userAnswer.longitude)
-      ) {
-        score += 1;
-      }
-    });
-
-    // Update leaderboard
-    const leaderboardParams = {
-      TableName: process.env.LEADERBOARD_TABLE,
-      Item: {
-        quizId,
-        accountId,
-        username,
-        score,
-        playedAt: new Date().toISOString(),
-      },
-    };
-
-    await db.put(leaderboardParams);
-
+    console.log("Received answers:", JSON.stringify(answers, null, 2));
+    const result = await addScoreToLeaderboard(
+      quizId,
+      accountId,
+      username,
+      answers
+    );
+    console.log("Score result:", JSON.stringify(result, null, 2));
     return sendResponse(200, {
       message: "Quiz completed",
-      score,
-      totalQuestions: questions.length,
+      score: result.score,
+      totalQuestions: result.totalQuestions,
     });
   } catch (error) {
-    console.error("Error playing quiz:", error);
+    console.error("Error in addScoreToLeaderboardHandler:", error);
+    if (error.message.startsWith("Incorrect number of answers")) {
+      return sendError(400, { error: error.message });
+    }
     return sendError(500, { error: "Could not complete the quiz" });
   }
 };
 
-export const handler = middy(addScoreToLeaderboard)
+export const handler = middy(addScoreToLeaderboardHandler)
   .use(jsonBodyParser())
   .use(httpErrorHandler())
   .use(authMiddleware())

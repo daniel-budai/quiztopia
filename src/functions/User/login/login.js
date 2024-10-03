@@ -1,4 +1,4 @@
-import { db } from "../../../services/database/dynamodb.js";
+import { getUserByUsername } from "../../../helpers/User/userHelpers.js";
 import { comparePassword } from "../../../utils/bcrypt/bcryptUtils.js";
 import { generateToken } from "../../../utils/jwt/tokenUtils.js";
 import middy from "@middy/core";
@@ -14,17 +14,7 @@ const login = async (event) => {
   const { username, password } = event.body;
 
   try {
-    const params = {
-      TableName: process.env.ACCOUNTS_TABLE,
-      IndexName: "UsernameIndex",
-      KeyConditionExpression: "username = :username",
-      ExpressionAttributeValues: {
-        ":username": username,
-      },
-    };
-
-    const result = await db.query(params);
-    const account = result.Items[0];
+    const account = await getUserByUsername(username);
 
     if (!account) {
       return sendError(401, { error: "No user with that username found" });
