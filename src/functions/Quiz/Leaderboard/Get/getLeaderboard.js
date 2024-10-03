@@ -1,4 +1,4 @@
-import { db } from "../../../../services/database/dynamodb.js";
+import { getLeaderboard } from "../../../../helpers/Leaderboard/getLeaderboardHelper.js";
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
 import {
@@ -6,32 +6,16 @@ import {
   sendError,
 } from "../../../../utils/responses/responseHandlers.js";
 
-const getQuizLeaderboard = async (event) => {
+const getLeaderboardHandler = async (event) => {
   const { quizId } = event.pathParameters;
 
-  const params = {
-    TableName: process.env.LEADERBOARD_TABLE,
-    IndexName: "QuizScoreIndex",
-    KeyConditionExpression: "quizId = :quizId",
-    ExpressionAttributeValues: {
-      ":quizId": quizId,
-    },
-    ProjectionExpression: "username, score",
-    ScanIndexForward: false,
-  };
-
   try {
-    const result = await db.query(params);
-    const leaderboard = result.Items.map((item) => ({
-      username: item.username,
-      score: item.score,
-    }));
-
+    const leaderboard = await getLeaderboard(quizId);
     return sendResponse(200, leaderboard);
   } catch (error) {
-    console.error("Error retrieving leaderboard:", error);
+    console.error("Error in getLeaderboardHandler:", error);
     return sendError(500, { error: "Could not retrieve leaderboard" });
   }
 };
 
-export const handler = middy(getQuizLeaderboard).use(httpErrorHandler());
+export const handler = middy(getLeaderboardHandler).use(httpErrorHandler());

@@ -1,5 +1,4 @@
-import { db } from "../../../services/database/dynamodb.js";
-import { v4 as uuidv4 } from "uuid";
+import { createQuiz } from "../../../helpers/Quiz/createQuizHelper.js";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
 import { inputValidator } from "../../../middlewares/validation/inputValidator.js";
@@ -10,31 +9,23 @@ import {
   sendError,
 } from "../../../utils/responses/responseHandlers.js";
 
-const createQuiz = async (event) => {
+const createQuizHandler = async (event) => {
   const { title } = event.body;
-  const { accountId } = event.user;
-
-  const quizId = uuidv4();
-  const params = {
-    TableName: process.env.QUIZZES_TABLE,
-    Item: {
-      quizId,
-      title,
-      accountId,
-      createdAt: new Date().toISOString(),
-    },
-  };
+  const { accountId, username } = event.user;
 
   try {
-    await db.put(params);
-    return sendResponse(201, { message: "Quiz created successfully", quizId });
+    const quizId = await createQuiz(title, accountId, username);
+    return sendResponse(201, {
+      message: "Quiz created successfully",
+      quizId,
+    });
   } catch (error) {
-    console.error("Error creating quiz:", error);
+    console.error("Error in createQuizHandler:", error);
     return sendError(500, { error: "Could not create quiz" });
   }
 };
 
-export const handler = middy(createQuiz)
+export const handler = middy(createQuizHandler)
   .use(jsonBodyParser())
   .use(authMiddleware())
   .use(inputValidator(createQuizSchema));

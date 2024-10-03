@@ -1,6 +1,5 @@
-import { db } from "../../../services/database/dynamodb.js";
+import { createUser } from "../../../helpers/User/userHelpers.js";
 import { hashPassword } from "../../../utils/bcrypt/bcryptUtils.js";
-import { v4 as uuidv4 } from "uuid";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
 import { inputValidator } from "../../../middlewares/validation/inputValidator.js";
@@ -15,22 +14,16 @@ const signup = async (event) => {
 
   try {
     const hashedPassword = await hashPassword(password);
-    const accountId = uuidv4();
+    const accountId = await createUser(username, hashedPassword);
 
-    const params = {
-      TableName: process.env.ACCOUNTS_TABLE,
-      Item: {
-        accountId: accountId,
-        username,
-        password: hashedPassword,
-      },
-    };
-
-    await db.put(params);
-
-    return sendResponse(201, { message: "Account created successfully" });
+    return sendResponse(201, {
+      message: "Account created successfully",
+    });
   } catch (error) {
     console.error("Error creating account:", error);
+    if (error.message === "Username already exists") {
+      return sendError(409, { error: error.message });
+    }
     return sendError(500, { error: "Could not create account" });
   }
 };
