@@ -1,6 +1,5 @@
 import { getAllQuizzes } from "../../../helpers/Quiz/getAllQuizHelper.js";
 import middy from "@middy/core";
-import httpErrorHandler from "@middy/http-error-handler";
 import {
   sendResponse,
   sendError,
@@ -16,4 +15,4 @@ const getAllQuizzesHandler = async (event) => {
   }
 };
 
-export const handler = middy(getAllQuizzesHandler).use(httpErrorHandler());
+export const handler = middy(getAllQuizzesHandler);

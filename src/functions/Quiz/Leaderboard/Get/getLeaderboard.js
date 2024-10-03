@@ -1,6 +1,5 @@
 import { getLeaderboard } from "../../../../helpers/Leaderboard/getLeaderboardHelper.js";
 import middy from "@middy/core";
-import httpErrorHandler from "@middy/http-error-handler";
 import {
   sendResponse,
   sendError,
@@ -18,4 +17,4 @@ const getLeaderboardHandler = async (event) => {
   }
 };
 
-export const handler = middy(getLeaderboardHandler).use(httpErrorHandler());
+export const handler = middy(getLeaderboardHandler);

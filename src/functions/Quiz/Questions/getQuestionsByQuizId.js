@@ -1,6 +1,5 @@
 import { getQuestionsByQuizId } from "../../../helpers/Questions/getQuestionsByQuizIdHelper.js";
 import middy from "@middy/core";
-import httpErrorHandler from "@middy/http-error-handler";
 import authMiddleware from "../../../middlewares/auth/authMiddleware.js";
 import {
   sendResponse,
@@ -19,6 +18,4 @@ const getQuestionsByQuizIdHandler = async (event) => {
   }
 };
 
-export const handler = middy(getQuestionsByQuizIdHandler)
-  .use(httpErrorHandler())
-  .use(authMiddleware());
+export const handler = middy(getQuestionsByQuizIdHandler).use(authMiddleware());

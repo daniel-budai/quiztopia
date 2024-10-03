@@ -1,7 +1,6 @@
 import { addScoreToLeaderboard } from "../../../../helpers/Leaderboard/addScoreToLeaderboardHelper.js";
 import middy from "@middy/core";
 import jsonBodyParser from "@middy/http-json-body-parser";
-import httpErrorHandler from "@middy/http-error-handler";
 import authMiddleware from "../../../../middlewares/auth/authMiddleware.js";
 import {
   sendResponse,
@@ -46,6 +45,5 @@ const addScoreToLeaderboardHandler = async (event) => {
 
 export const handler = middy(addScoreToLeaderboardHandler)
   .use(jsonBodyParser())
-  .use(httpErrorHandler())
   .use(authMiddleware())
   .use(inputValidator(addScoreSchema));
