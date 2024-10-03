@@ -10,6 +10,7 @@ stages:
       quizzesTable: "quizzes-table-${sls:stage}"
       questionsTable: "questions-table-${sls:stage}"
       leaderboardTable: "leaderboards-table-${sls:stage}"
+      jwtSecret: ${env:JWT_SECRET}
 
 provider:
   name: aws
@@ -37,7 +38,7 @@ provider:
     QUIZZES_TABLE: ${param:quizzesTable}
     QUESTIONS_TABLE: ${param:questionsTable}
     LEADERBOARD_TABLE: ${param:leaderboardTable}
-    JWT_SECRET: "din_hemliga_nyckel"
+    JWT_SECRET: ${param:jwtSecret}
 
 functions:
   signup:
