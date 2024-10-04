@@ -1,0 +1,313 @@
+{
+	"info": {
+		"_postman_id": "67acff6c-15bd-49f6-82c0-3dead22f83ac",
+		"name": "quiztopia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33254893"
+	},
+	"item": [
+		{
+			"name": "signup",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"testuser\",\r\n  \"password\": \"pwd123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://qoi1ldlo3c.execute-api.eu-north-1.amazonaws.com/signup",
+					"protocol": "https",
+					"host": [
+						"qoi1ldlo3c",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"testuser\",\r\n  \"password\": \"pwd123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://qoi1ldlo3c.execute-api.eu-north-1.amazonaws.com/login",
+					"protocol": "https",
+					"host": [
+						"qoi1ldlo3c",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create Quiz",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"Platser i Stockholm\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://qoi1ldlo3c.execute-api.eu-north-1.amazonaws.com/quizzes",
+					"protocol": "https",
+					"host": [
+						"qoi1ldlo3c",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"quizzes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add question to quiz",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"question\": \"Vad heter gallerian?\",\r\n  \"answer\": \"Kista galleria\",\r\n  \"latitude\": 73.3498,\r\n  \"longitude\": 26.2603\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://qoi1ldlo3c.execute-api.eu-north-1.amazonaws.com/quizzes/{quizId}/questions",
+					"protocol": "https",
+					"host": [
+						"qoi1ldlo3c",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"quizzes",
+						"{quizId}",
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all quizzes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://qoi1ldlo3c.execute-api.eu-north-1.amazonaws.com/quizzes",
+					"protocol": "https",
+					"host": [
+						"qoi1ldlo3c",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"quizzes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete quiz",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://qoi1ldlo3c.execute-api.eu-north-1.amazonaws.com/quizzes/{quizId}",
+					"protocol": "https",
+					"host": [
+						"qoi1ldlo3c",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"quizzes",
+						"{quizId}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get questions for a specific quiz",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://qoi1ldlo3c.execute-api.eu-north-1.amazonaws.com/quizzes/{quizId}/questions",
+					"protocol": "https",
+					"host": [
+						"qoi1ldlo3c",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"quizzes",
+						"{quizId}",
+						"questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "answer quiz",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"answers\": [\r\n    {\r\n      \"answer\": \"paris\",\r\n      \"latitude\": 7.8566,\r\n      \"longitude\": 22.3522\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://qoi1ldlo3c.execute-api.eu-north-1.amazonaws.com/quizzes/{quizId}/play",
+					"protocol": "https",
+					"host": [
+						"qoi1ldlo3c",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"quizzes",
+						"{quizId}",
+						"play"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get leaderboard by quizId",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://qoi1ldlo3c.execute-api.eu-north-1.amazonaws.com/quizzes/{quizId}/leaderboard",
+					"protocol": "https",
+					"host": [
+						"qoi1ldlo3c",
+						"execute-api",
+						"eu-north-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"quizzes",
+						"{quizId}",
+						"leaderboard"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
